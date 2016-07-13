@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
 import org.adempiere.util.Check;
 
 import com.google.common.base.MoreObjects.ToStringHelper;
@@ -62,6 +63,7 @@ import de.metas.handlingunits.model.I_M_HU;
 	private final I_M_HU hu;
 	private boolean disposed = false;
 	private long disposedTS = 0;
+	private Exception disposedStackTrace;
 
 	public HUKeyAttributeStorage(final IAttributeStorageFactory attributesStorageFactory, final IHUKey huKey)
 	{
@@ -222,6 +224,10 @@ import de.metas.handlingunits.model.I_M_HU;
 
 		this.disposed = true;
 		this.disposedTS = System.currentTimeMillis();
+		if(logger.isTraceEnabled())
+		{
+			this.disposedStackTrace = new Exception("Disposed stack trace");
+		}
 		fireAttributeStorageDisposed();
 	}
 
@@ -233,6 +239,11 @@ import de.metas.handlingunits.model.I_M_HU;
 			final HUException ex = new HUException("Accessing an already disposed HUKeyAttributeStorage shall not be allowed"
 					+ "\n Storage: " + this
 					+ "\n Disposed on: " + (disposedTS > 0 ? new Date(disposedTS).toString() : ""));
+			if (disposedStackTrace != null)
+			{
+				ex.addSuppressed(disposedStackTrace);
+			}
+			
 			if (HUConstants.isAttributeStorageFailOnDisposed())
 			{
 				throw ex;
