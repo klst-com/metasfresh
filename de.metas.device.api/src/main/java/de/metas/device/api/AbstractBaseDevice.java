@@ -13,18 +13,20 @@ package de.metas.device.api;
  * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
+ * License along with this program. If not, see
  * <http://www.gnu.org/licenses/gpl-2.0.html>.
  * #L%
  */
 
-
 import java.util.HashMap;
 import java.util.Map;
+
+import com.google.common.base.MoreObjects;
+import com.google.common.base.MoreObjects.ToStringHelper;
 
 import de.metas.device.api.request.DeviceRequestConfigureDevice;
 import de.metas.device.api.request.DeviceRequestGetConfigParams;
@@ -48,8 +50,25 @@ public abstract class AbstractBaseDevice implements IDevice
 			}
 		};
 		registerHandler(DeviceRequestGetConfigParams.class, handler);
-		
+
 		registerHandler(DeviceRequestConfigureDevice.class, getConfigureDeviceHandler());
+	}
+
+	@Override
+	public final String toString()
+	{
+		final ToStringHelper toStringHelper = MoreObjects.toStringHelper(this);
+		toString(toStringHelper);
+
+		return toStringHelper
+				// NOTE: don't add the whole requestType2Handler because it might throw StackOverflowException
+				.add("requestTypes", requestType2Handler.keySet())
+				.toString();
+	}
+
+	protected void toString(final ToStringHelper toStringHelper)
+	{
+
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -74,10 +93,11 @@ public abstract class AbstractBaseDevice implements IDevice
 	 * @return
 	 */
 	public abstract IDeviceResponseGetConfigParams getRequiredConfigParams();
-	
+
 	/**
 	 * Returns that particular request handler which is in charge of configuring the device using parmeters from the "outside world".
+	 * 
 	 * @return
 	 */
-	public abstract IDeviceRequestHandler<DeviceRequestConfigureDevice, IDeviceResponse>getConfigureDeviceHandler();
+	public abstract IDeviceRequestHandler<DeviceRequestConfigureDevice, IDeviceResponse> getConfigureDeviceHandler();
 }

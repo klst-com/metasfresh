@@ -26,6 +26,8 @@ package de.metas.device.scales;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.base.MoreObjects.ToStringHelper;
+
 import de.metas.device.api.AbstractBaseDevice;
 import de.metas.device.api.IDeviceRequestHandler;
 import de.metas.device.api.IDeviceResponse;
@@ -52,6 +54,15 @@ public abstract class AbstractTcpScales extends AbstractBaseDevice
 	private ITcpConnectionEndPoint endPoint;
 
 	private int roundToPrecision;
+	
+	@Override
+	protected void toString(final ToStringHelper toStringHelper)
+	{
+		toStringHelper
+				.add("endPoint", endPoint)
+				.add("roundToPrecision", roundToPrecision);
+		super.toString(toStringHelper);
+	}
 
 	public abstract void configureStatic();
 

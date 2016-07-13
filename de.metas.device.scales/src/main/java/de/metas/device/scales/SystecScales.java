@@ -46,10 +46,4 @@ public class SystecScales extends AbstractTcpScales
 		;
 		registerHandler(GetGrossWeighRequest.class, handler);
 	}
-
-	@Override
-	public String toString()
-	{
-		return ObjectUtils.toString(this);
-	}
 }
