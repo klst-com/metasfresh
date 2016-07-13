@@ -362,13 +362,18 @@ import de.metas.logging.LogManager;
 						@Override
 						public Object runInBackground(final IClientUIAsyncExecutor<PropertyChangeEvent, Object, Void> executor)
 						{
+							logger.trace("runInBackground: Aquiring value for {} ({})", editor, inputMethod);
+							
 							final Object value = inputMethod.invoke();
+							logger.trace("runInBackground: Got value={}", value);
 							return value;
 						};
 
 						@Override
 						public void finallyUpdateUI(final IClientUIAsyncExecutor<PropertyChangeEvent, Object, Void> executor, final Object value)
 						{
+							logger.trace("finallyUpdateUI with value={}, executor={}", value, executor);
+							
 							// Guard against concurrency issues, when the model was changed in meantime.
 							// Shall not happen, but better safe then sorry
 							final IPropertiesPanelModel modelActual = getModel();
