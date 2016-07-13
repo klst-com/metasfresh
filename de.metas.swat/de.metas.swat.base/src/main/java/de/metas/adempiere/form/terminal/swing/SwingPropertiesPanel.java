@@ -384,6 +384,9 @@ import de.metas.logging.LogManager;
 							}
 
 							editor.setValue(value, true); // fireEvent=true
+							
+							// NOTE: if we don't invoke "refresh" on our editor, it might be that on some machines the editor value is pained?!
+							SwingTerminalFactory.refresh(editor);
 						}
 					});
 
