@@ -228,6 +228,8 @@ class SwingClientUIAsyncInvoker implements IClientUIAsyncInvoker
 		/** Before {@link #runnable} was executed. This method runs in EDT. */
 		private void doPrepareInUI()
 		{
+			logger.trace("Preparing in UI: {}", this);
+			
 			//
 			// Get the root pane container and window.
 			final RootPaneContainer rootPaneContainer = findRootPaneContainer(parentComponent);
