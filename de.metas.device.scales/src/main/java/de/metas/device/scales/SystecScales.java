@@ -23,8 +23,6 @@ package de.metas.device.scales;
  */
 
 
-import org.adempiere.util.lang.ObjectUtils;
-
 import de.metas.device.scales.impl.ScalesGetGrossWeightHandler;
 import de.metas.device.scales.impl.systec.ISystecCmd;
 import de.metas.device.scales.impl.systec.SystecCmdRN;
