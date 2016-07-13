@@ -387,11 +387,24 @@ import de.metas.logging.LogManager;
 								logger.warn(ex.getLocalizedMessage(), ex);
 								return;
 							}
-
-							editor.setValue(value, true); // fireEvent=true
 							
-							// NOTE: if we don't invoke "refresh" on our editor, it might be that on some machines the editor value is pained?!
-							SwingTerminalFactory.refresh(editor);
+							// Guard against concurrency issues, when the editor changed in meantime?!
+							// Shall not happen, but better safe then sorry (FRESH-512)
+							final ITerminalField<?> editorActual = propertyName2editors.get(propertyName);
+							if(!Util.same(editor, editorActual))
+							{
+								final TerminalException ex = new TerminalException("Internal error: the value aquired from input method because editor changed in meantime."
+										+ "\n Editor: " + editor
+										+ "\n Editor(now): " + editorActual
+										+ "\n Input method: " + inputMethod
+										+ "\n Value aquired: " + value);
+								logger.warn(ex.getLocalizedMessage(), ex);
+							}
+
+							editorActual.setValue(value, true); // fireEvent=true
+							
+							// NOTE: if we don't invoke "refresh" on our editor, it might be that on some machines the editor value is pained?! (FRESH-512)
+							SwingTerminalFactory.refresh(editorActual);
 						}
 					});
 
