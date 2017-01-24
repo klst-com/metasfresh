@@ -27,8 +27,4 @@ public interface I_M_Attribute extends org.adempiere.mm.attributes.model.I_M_Att
     public static final String COLUMNNAME_IsMatchHUStorage = "IsMatchHUStorage";
 	public void setIsMatchHUStorage(boolean IsMatchHUStorage);
 	public boolean isMatchHUStorage();
-	
-	public static final String COLUMNNAME_IsTransferWhenNull = "IsTransferWhenNull";
-	public void setIsTransferWhenNull(boolean isTransferWhenNull);
-	public boolean isTransferWhenNull();
 }
