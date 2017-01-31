@@ -36,7 +36,6 @@ import org.adempiere.model.InterfaceWrapperHelper;
 import org.adempiere.pricing.api.IPriceListDAO;
 import org.adempiere.util.Services;
 import org.bmecat.bmecat._2005.DESCRIPTIONSHORT;
-import org.compiere.model.MPriceListVersion;
 import org.compiere.model.MProductPO;
 import org.compiere.model.MProductPrice;
 import org.compiere.model.MUOM;
@@ -50,6 +49,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import com.klst.mf.opentrans.MOrder;
+import com.klst.mf.opentrans.MPriceListVersion;
 import com.klst.mf.opentrans.MProduct;
 import com.klst.mf.opentrans.MUoM;
 import com.klst.opentrans.XmlReader;
@@ -109,7 +109,8 @@ public class CreateProductProcess extends JavaProcess {
 				log.error("Unknown Parameter: {}", name);
 			}
 		}
-		log.info("prepare: Dateipfad={} , DateipfadProcessed={} , C_BPartner_ID=", pDateipfad, pDateipfadProcessed, pDropShipBPartner_ID);
+		log.info("prepare: Dateipfad={} , DateipfadProcessed={}", pDateipfad, pDateipfadProcessed);
+		log.info("...    : C_BPartner_ID={} , pSalesRep_ID={}", pDropShipBPartner_ID, pSalesRep_ID);
 	}
 	
 	/*
@@ -149,12 +150,12 @@ public class CreateProductProcess extends JavaProcess {
 				String uri = dir.getAbsolutePath() + File.separator + files[i];
 				File file = new File(uri);
 				File fileto = new File(dirto.getAbsolutePath() + File.separator + files[i]);
-				log.info( "doIt() use {} : isFile={} fileto.exists={}", uri, file.isFile(), fileto.exists());
+				log.info( "doIt(): use {} : isFile={} fileto.exists={}", uri, file.isFile(), fileto.exists());
 				if(file.isFile()) {
 					try {
 						msg = msg + "<br/>" + doOne(msg, uri);
 						boolean moved = this.movefile(file, fileto);
-						log.warn("moved={} to {}", moved, fileto.getAbsolutePath());
+						log.warn("doIt(): moved={} to {}", moved, fileto.getAbsolutePath());
 					} catch (Exception e) {
 						log.warn(e.getMessage());
 						msg = msg + "<br/>" + e.getMessage();
@@ -258,7 +259,7 @@ public class CreateProductProcess extends JavaProcess {
 		
 		List<MProduct> pl = getProduct(vendorProductNo, dropShipBPartner_ID);		
 		if(pl.isEmpty()) {
-			log.info("*new Product* VendorProductNo={}, desc0={}", vendorProductNo, desc0);
+			log.info("createProductIfNew: *new Product* VendorProductNo={}, desc0={}", vendorProductNo, desc0);
 			BigDecimal pricepp = null;
 			BigDecimal tax = null;
 			if(otPrice==null) {
@@ -308,14 +309,14 @@ public class CreateProductProcess extends JavaProcess {
 			pPO.setC_UOM_ID(unit.getC_UOM_ID());
 			pPO.saveEx(this.get_TrxName());
 			
-			// MProductPrice erstellen (vorsichtshalber existierende beachten, siehe com.klst.mf.process.ImportProduct) 
-			log.info(" PRICEAMOUNT={} PRICEQUANTITY={} pricepp={}", otPrice.getPRICEAMOUNT(), otPrice.getPRICEQUANTITY(), pricepp);
-			MPriceListVersion plv = product.getDefaultSOPriceListVersion();
+			// MProductPrice erstellen (vorsichtshalber existierende beachten, siehe com.klst.*.process.ImportProduct) 
+			log.info("createProductIfNew: PRICEAMOUNT={} PRICEQUANTITY={} pricepp={}", otPrice.getPRICEAMOUNT(), otPrice.getPRICEQUANTITY(), pricepp);
+			MPriceListVersion plv = MPriceListVersion.getDefaultSOPriceListVersion(getCtx(), get_TrxName());
 			if(plv==null) {
-				log.error("No MPriceListVersion");
+				log.error("createProductIfNew: No MPriceListVersion");
 				throw new AdempiereException("cannot find a DefaultSOPriceList SOE");
 			} else {
-				log.info(" plv.M_PriceList_Version_ID={}",plv.getM_PriceList_Version_ID());
+				log.info("createProductIfNew: plv.M_PriceList_Version_ID={}",plv.getM_PriceList_Version_ID());
 			}
 			int plvID = plv.getM_PriceList_Version_ID();
 			
@@ -347,7 +348,7 @@ public class CreateProductProcess extends JavaProcess {
 			// auf mierp c_taxcategory_id in TABLE m_productprice 
 			price.saveEx(this.get_TrxName());
 			
-			log.info("product="+product + " pPO="+pPO + " price="+price);
+			log.info("createProductIfNew: product="+product + " pPO="+pPO + " price="+price);
 		} else {
 			product = pl.get(0); 
 			newProduct = false;
@@ -385,10 +386,10 @@ public class CreateProductProcess extends JavaProcess {
 			if(resultList.size()>1) {
 				// hier genuegt eine Warnung : den Fehler gibt es aber in CreateOrderProcess
 //				throw new AdempiereException(" not unique! Product '" + otProductSupplierPid + "' result.size="+resultList.size());
-				log.warn("not unique! Product '{}' result.size=", otProductSupplierPid, resultList.size());
+				log.warn("getProduct: not unique! Product '{}' result.size=", otProductSupplierPid, resultList.size());
 			}
 			if(resultList.isEmpty()) {
-				log.info(" not found! Product with otProductSupplierPid='{}'", otProductSupplierPid);
+				log.info("getProduct: not found! Product with otProductSupplierPid='{}'", otProductSupplierPid);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

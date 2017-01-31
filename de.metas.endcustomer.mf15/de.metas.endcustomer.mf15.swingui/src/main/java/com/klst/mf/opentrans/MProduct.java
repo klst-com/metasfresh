@@ -29,7 +29,6 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import org.adempiere.exceptions.AdempiereException;
-import org.compiere.model.MPriceListVersion;
 import org.compiere.model.MProductCategory;
 import org.compiere.model.MProductPO;
 import org.compiere.model.MTaxCategory;
@@ -93,7 +92,7 @@ public class MProduct extends org.compiere.model.MProduct {
 	private PreparedStatement pstmtProductCat; 
 	
 	private static final String SQL_TAX = "SELECT c_taxcategory_id FROM c_tax t"
-			+ " WHERE isactive='Y' AND ad_client_id = ? AND ad_org_id IN( 0, ? ) AND rate = ? AND istoeulocation='N'";
+			+ " WHERE isactive='Y' AND ad_client_id = ? AND ad_org_id IN( 0, ? ) AND rate = ? AND istoeulocation='Y' AND c_country_id=101";
 	private static final String SQL_TAX_CAT = "SELECT * FROM c_taxcategory c"
 			+ " WHERE isactive='Y' AND c_taxcategory_id IN("+ SQL_TAX +")";
 	private PreparedStatement pstmtTaxCat; 
@@ -161,7 +160,7 @@ public class MProduct extends org.compiere.model.MProduct {
 			rs = pstmtTaxDefalutCat.executeQuery();
 			if(rs.next()) {
 				taxcat = new MTaxCategory(this.getCtx(), rs, this.get_TrxName());
-				log.info("getDefaultTaxCategory taxcat={}", taxcat);
+				log.info("getDefaultTaxCategory: taxcat={}", taxcat);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -179,7 +178,7 @@ public class MProduct extends org.compiere.model.MProduct {
 			rs = pstmtTaxCat.executeQuery();
 			if(rs.next()) {
 				taxcat = new MTaxCategory(this.getCtx(), rs, this.get_TrxName());
-				log.info("getTaxCategory taxcat={} rate={}", taxcat, rate);
+				log.info("getTaxCategory: taxcat={} rate={}", taxcat, rate);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -188,28 +187,6 @@ public class MProduct extends org.compiere.model.MProduct {
 			throw new AdempiereException("No TaxCategory for rate=" + rate );
 		}
 		return taxcat;
-	}
-	
-	/* holt default plv
-	 * 
-	 * eigentlich sollte diese Methode static sein, aber ...
-	 */
-	public MPriceListVersion getDefaultSOPriceListVersion() {
-		MPriceListVersion plv = null;
-		ResultSet rs;
-		try {
-			pstmtPricelistVersion.setInt(1, Env.getAD_Client_ID(this.getCtx()));
-			pstmtPricelistVersion.setInt(2, Env.getAD_Org_ID(this.getCtx()));
-			pstmtPricelistVersion.setString(3, "SOE");
-			rs = pstmtPricelistVersion.executeQuery();
-			if(rs.next()) {
-				plv = new MPriceListVersion(this.getCtx(), rs, this.get_TrxName());
-				log.info("getDefaultSOPriceListVersion plv={}", plv);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return plv;
 	}
 	
 	/*
