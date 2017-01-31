@@ -92,7 +92,7 @@ public class MProduct extends org.compiere.model.MProduct {
 	private PreparedStatement pstmtProductCat; 
 	
 	private static final String SQL_TAX = "SELECT c_taxcategory_id FROM c_tax t"
-			+ " WHERE isactive='Y' AND ad_client_id = ? AND ad_org_id IN( 0, ? ) AND rate = ? AND istoeulocation='Y' AND c_country_id=101";
+			+ " WHERE isactive='Y' AND ad_client_id = ? AND ad_org_id IN( 0, ? ) AND rate = ? AND requirestaxcertificate='N' AND istoeulocation='Y' AND c_country_id=101";
 	private static final String SQL_TAX_CAT = "SELECT * FROM c_taxcategory c"
 			+ " WHERE isactive='Y' AND c_taxcategory_id IN("+ SQL_TAX +")";
 	private PreparedStatement pstmtTaxCat; 
@@ -101,19 +101,6 @@ public class MProduct extends org.compiere.model.MProduct {
 			+ " WHERE isactive='Y' AND ad_client_id = ? AND ad_org_id IN( 0, ? ) AND isdefault='Y' ";
 	private PreparedStatement pstmtTaxDefalutCat; 
 	
-	// id:
-//	private static final String SQL_SOPRICELIST = "SELECT m_pricelist_id FROM m_pricelist"
-//			+ " WHERE isactive='Y' AND ad_client_id = ? AND ad_org_id IN( 0, ? ) AND isdefault='Y' AND issopricelist='Y'";
-	// mf: Konvention name='SOE'
-	private static final String SQL_SOPRICELIST = "SELECT m_pricelist_id FROM m_pricelist"
-			+ " WHERE isactive='Y' AND ad_client_id = ? AND ad_org_id IN( 0, ? ) AND name = ? AND issopricelist='Y'";
-	private static final String SQL_SOPRICELISTVERSION = "SELECT * FROM m_pricelist_version"
-			+ " WHERE isactive='Y' AND m_pricelist_id in (" + SQL_SOPRICELIST + ")";
-	// auf mierp:
-//	private static final String SQL_SOPRICELISTVERSION = "SELECT * FROM m_pricelist_version"
-//			+ " WHERE isactive='Y' AND ad_client_id = ? AND ad_org_id IN( 0, ? ) AND isdefaultsoprice='Y' ";
-	private PreparedStatement pstmtPricelistVersion;  
-	
 	// ctor
 	public MProduct(Properties ctx, int M_Product_ID, String trxName)
 	{
@@ -121,7 +108,6 @@ public class MProduct extends org.compiere.model.MProduct {
 		pstmtProductCat = DB.prepareStatement(SQL_PRODUCT_CAT, trxName);
 		pstmtTaxCat = DB.prepareStatement(SQL_TAX_CAT, trxName);
 		pstmtTaxDefalutCat = DB.prepareStatement(SQL_TAX_CAT_DEFAULT, trxName);
-		pstmtPricelistVersion = DB.prepareStatement(SQL_SOPRICELISTVERSION, trxName);
 	}
 
 	/* holt default (Standard) pcat
