@@ -90,6 +90,9 @@ public class MProduct extends org.compiere.model.MProduct {
 	private static final String SQL_PRODUCT_CAT = "SELECT * FROM m_product_category"
 			+ " WHERE isactive='Y' AND ad_client_id = ? AND ad_org_id IN( 0, ? ) AND isdefault='Y' ";
 	private PreparedStatement pstmtProductCat; 
+	private static final String SQL_PRODUCT_CATSTD = "SELECT * FROM m_product_category"
+			+ " WHERE isactive='Y' AND ad_client_id = ? AND ad_org_id IN( 0, ? ) AND value='Standard' ";
+	private PreparedStatement pstmtProductCatStd; 
 	
 	private static final String SQL_TAX = "SELECT c_taxcategory_id FROM c_tax t"
 			+ " WHERE isactive='Y' AND ad_client_id = ? AND ad_org_id IN( 0, ? ) AND rate = ? AND requirestaxcertificate='N' AND istoeulocation='Y' AND c_country_id=101";
@@ -106,6 +109,7 @@ public class MProduct extends org.compiere.model.MProduct {
 	{
 		super(ctx, M_Product_ID, trxName);
 		pstmtProductCat = DB.prepareStatement(SQL_PRODUCT_CAT, trxName);
+		pstmtProductCatStd = DB.prepareStatement(SQL_PRODUCT_CATSTD, trxName);
 		pstmtTaxCat = DB.prepareStatement(SQL_TAX_CAT, trxName);
 		pstmtTaxDefalutCat = DB.prepareStatement(SQL_TAX_CAT_DEFAULT, trxName);
 	}
@@ -124,11 +128,28 @@ public class MProduct extends org.compiere.model.MProduct {
 			rs = pstmtProductCat.executeQuery();
 			if(rs.next()) {
 				pcat = new MProductCategory(this.getCtx(), rs, this.get_TrxName());
-				log.info("getDefaultProductCategory pcat={}", pcat);
+				log.info("getDefaultProductCategory: pcat={}", pcat);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		if(pcat==null) {
+			log.warn("getDefaultProductCategory: no default pcat");
+		} else {
+			return pcat;
+		}
+		try {
+			pstmtProductCatStd.setInt(1, Env.getAD_Client_ID(this.getCtx()));
+			pstmtProductCatStd.setInt(2, Env.getAD_Org_ID(this.getCtx()));
+			rs = pstmtProductCatStd.executeQuery();
+			if(rs.next()) {
+				pcat = new MProductCategory(this.getCtx(), rs, this.get_TrxName());
+				log.info("getDefaultProductCategory: Standard pcat={}", pcat);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		log.info("getDefaultProductCategory: pcat={}", pcat);
 		return pcat;
 	}
 	

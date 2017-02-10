@@ -227,7 +227,7 @@ public class CreateProductProcess extends JavaProcess {
 			if(newProducts>0)
 				ret = ""+newProducts+ " new Product(s) in ORDERID="+order.getORDERHEADER().getORDERINFO().getORDERID();
 		} catch (Exception e) {
-			log.warn("doOne() : {}", e.getMessage());
+			log.warn("doOne() Exception: {}", e.getMessage());
 			throw new AdempiereException(e.getMessage() + " in "+uri );
 		}
 		
@@ -278,9 +278,11 @@ public class CreateProductProcess extends JavaProcess {
 				}
 			}
 			
+			//log.info("createProductIfNew: new MProduct(this.getCtx(), 0, TrxName={})", this.get_TrxName());
 			product = new MProduct(this.getCtx(), 0, this.get_TrxName());
 			
 			product.setSKU("::"+vendorProductNo);
+			log.info("createProductIfNew: SKU={})", product.getSKU());
 			
 			if(desc0==null) {
 				throw new AdempiereException("No DESCRIPTION" + " in item "+item.getLINEITEMID() );

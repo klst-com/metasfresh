@@ -316,9 +316,15 @@ Query: TypedSqlQuery{tableName=C_Tax, whereClause=validFrom < ?  AND C_Country_I
 		this.setM_Warehouse_ID(this.getDropShip_Warehouse_ID());
 		this.setIsDropShip(ISDROPSHIP);
 		this.setDropShip_BPartner_ID(dropShipBPartner_ID);	
-		this.setDeliveryRule(DELIVERYRULE_Manual); // "Liefersrt"
-		this.setDeliveryViaRule(DELIVERYVIARULE_Shipper); // "Lieferung durch"
-		this.setM_Shipper_ID(this.getDefaultShipper().get_ID());
+		
+		try {
+			log.info("mapping: set shipper and DeliveryViaRule={} , DeliveryRule={}", DELIVERYVIARULE_Shipper, DELIVERYRULE_Manual);
+			this.setM_Shipper_ID(this.getDefaultShipper().get_ID());
+			this.setDeliveryViaRule(DELIVERYVIARULE_Shipper); // "Lieferung durch"
+			this.setDeliveryRule(DELIVERYRULE_Manual); // "Lieferart"
+		} catch (Exception e) {	
+			log.error(e.getMessage());
+		}
 		
 		// Invoicing:
 		this.setInvoiceRule(INVOICERULE_AfterDelivery);
@@ -371,9 +377,7 @@ Query: TypedSqlQuery{tableName=C_Tax, whereClause=validFrom < ?  AND C_Country_I
 			e.printStackTrace();
 		}
 		if(shipper==null) {
-			String msg = "No default Shipper";
-			log.error(msg);
-			throw new AdempiereException(msg);
+			throw new AdempiereException("No default Shipper");
 		}
 		return shipper;
 	}
